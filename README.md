@@ -6,7 +6,7 @@
 [![Code Coverage](https://codecov.io/gh/kensnyder/any-data/branch/main/graph/badge.svg?token=***&v=1.0.2)](https://codecov.io/gh/kensnyder/any-data)
 [![ISC License](https://img.shields.io/npm/l/any-data.svg?v=1.0.2)](https://opensource.org/licenses/ISC)
 
-Convert any data type to another
+Convert data of any type to text, json, formData, TypedArray, Blob, or ArrayBuffer
 
 ```bash
 npm install any-data

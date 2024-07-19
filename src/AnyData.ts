@@ -1,20 +1,20 @@
-import { getStreamAsArrayBuffer } from 'get-stream';
 import { isPlainObject } from 'is-plain-object';
 import { TypedArray } from 'type-fest';
 
 export type SupportedData =
+  // The following are supported by the Response object
   | Blob
   | ArrayBuffer
   | TypedArray
   | DataView
   | FormData
-  | ReadableStream
   | URLSearchParams
+  | null
+  | string
+  // others we want to support
   | Record<string, any>
   | Array<any>
-  | Response
-  | null
-  | string;
+  | Response;
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -24,6 +24,9 @@ export default class AnyData {
   constructor(data?: SupportedData) {
     this.data = data;
   }
+  set(data: SupportedData) {
+    this.data = data;
+  }
   async clone(): Promise<AnyData> {
     if (this.data instanceof Response) {
       return new AnyData(this.data.clone());
@@ -31,29 +34,32 @@ export default class AnyData {
     if (this.data === null || typeof this.data === 'string') {
       return new AnyData(this.data);
     }
+    if (this.data instanceof FormData) {
+      const formData = new FormData();
+      for (const [k, v] of this.data) {
+        formData.append(k, v);
+      }
+      return new AnyData(formData);
+    }
+    if (this.data instanceof URLSearchParams) {
+      const params = new URLSearchParams();
+      for (const [k, v] of this.data) {
+        params.append(k, v);
+      }
+      return new AnyData(params);
+    }
+    // Blob, ArrayBuffer, DataView, string, Record<string, any>, Array<any>
     return new AnyData(structuredClone(this.data));
   }
-  async arrayBuffer(): Promise<ArrayBuffer> {
-    if (this.data instanceof Blob) {
-      return this.data.arrayBuffer();
-    }
-    if (this.data instanceof ArrayBuffer) {
-      return this.data;
-    }
-    if (typeof this.data === 'string') {
-      return textEncoder.encode(this.data).buffer;
-    }
-    if (isTypedArray(this.data) || this.data instanceof DataView) {
-      return this.data.buffer;
-    }
-    if (this.data instanceof FormData) {
-      return (await this.blob()).arrayBuffer();
-    }
-    if (this.data instanceof ReadableStream) {
-      return getStreamAsArrayBuffer(this.data);
-    }
-  }
   async blob(): Promise<Blob> {
+    if (this.data instanceof Response) {
+      const blob = await this.data.blob();
+      this.data = blob;
+      return blob;
+    }
+    if (this.data === null) {
+      return new Blob();
+    }
     if (this.data instanceof Blob) {
       return this.data;
     }
@@ -68,21 +74,64 @@ export default class AnyData {
       return new Blob([this.data]);
     }
     if (this.data instanceof FormData) {
-      const text = await this.text();
-      return new Blob([text]);
+      return new Blob([JSON.stringify(await this.json())]);
     }
-    if (this.data instanceof ReadableStream) {
-      return new Blob([await getStreamAsArrayBuffer(this.data)]);
+    if (this.data instanceof URLSearchParams) {
+      return new Blob([await this.text()]);
     }
+    if (isPlainObject(this.data) || Array.isArray(this.data)) {
+      return new Blob([JSON.stringify(this.data)]);
+    }
+    throw new Error('Unable to convert unsupported data type to Blob');
+  }
+  async arrayBuffer(): Promise<ArrayBuffer> {
+    if (this.data instanceof Response) {
+      const buffer = await this.data.arrayBuffer();
+      this.data = buffer;
+      return buffer;
+    }
+    if (this.data === null) {
+      return new ArrayBuffer(0);
+    }
+    if (this.data instanceof Blob) {
+      return this.data.arrayBuffer();
+    }
+    if (this.data instanceof ArrayBuffer) {
+      return this.data;
+    }
+    if (typeof this.data === 'string') {
+      return textEncoder.encode(this.data).buffer;
+    }
+    if (isTypedArray(this.data) || this.data instanceof DataView) {
+      return this.data.buffer;
+    }
+    if (this.data instanceof FormData || this.data instanceof URLSearchParams) {
+      return (await this.blob()).arrayBuffer();
+    }
+    if (isPlainObject(this.data) || Array.isArray(this.data)) {
+      return textEncoder.encode(JSON.stringify(this.data)).buffer;
+    }
+    throw new Error('Unable to convert unsupported data type to ArrayBuffer');
   }
   async bytes(): Promise<TypedArray> {
-    if (this.data instanceof Blob) {
-      // @ts-expect-error  Bun supports but Node doesn't
+    if (this.data instanceof Response) {
+      /* v8 ignore next 7 */
+      // @ts-expect-error  Bun/Deno supports but Node doesn't
       if (typeof this.data.bytes === 'function') {
-        // @ts-expect-error  Bun supports but Node doesn't
-        return this.data.bytes();
+        // @ts-expect-error  Bun/Deno supports but Node doesn't
+        const arr = await this.data.bytes();
+        this.data = arr;
+        return arr;
       }
-      return new Uint8Array(await this.arrayBuffer());
+      const array = new Uint8Array(await this.data.arrayBuffer());
+      this.data = array;
+      return array;
+    }
+    if (this.data === null) {
+      return new Uint8Array();
+    }
+    if (this.data instanceof URLSearchParams) {
+      return textEncoder.encode(String(this.data));
     }
     if (typeof this.data === 'string') {
       return textEncoder.encode(this.data);
@@ -99,8 +148,24 @@ export default class AnyData {
     if (isTypedArray(this.data)) {
       return this.data;
     }
+    /* v8 ignore next 8 */
+    if (this.data instanceof Blob) {
+      // @ts-expect-error  Bun supports but Node doesn't
+      if (typeof this.data.bytes === 'function') {
+        // @ts-expect-error  Bun supports but Node doesn't
+        return this.data.bytes();
+      }
+      return new Uint8Array(await this.arrayBuffer());
+    }
+    if (isPlainObject(this.data) || Array.isArray(this.data)) {
+      return textEncoder.encode(JSON.stringify(this.data));
+    }
+    throw new Error('Unable to convert unsupported data type to a Uint8Array');
   }
   async formData(): Promise<FormData> {
+    if (this.data === null) {
+      return new FormData();
+    }
     if (this.data instanceof Response) {
       const formData = await this.data.formData();
       // response body has been used up, so update data
@@ -117,20 +182,37 @@ export default class AnyData {
       }
       return formData;
     }
+    if (this.data instanceof Array) {
+      const formData = new FormData();
+      for (const pair of this.data) {
+        formData.append(String(pair[0]), String(pair[1]));
+      }
+      return formData;
+    }
+    // String, Record<string, any>
     const formData = new FormData();
     try {
       const json = await this.json();
       for (const [k, v] of Object.entries(json)) {
         formData.append(k, String(v));
       }
+      /* v8 ignore next 3 */
     } catch (e) {
       // ignore
     }
     return formData;
   }
   async json(): Promise<any> {
-    if (this.data instanceof FormData) {
+    if (this.data instanceof Response) {
+      const json = await this.data.json();
+      this.data = json;
+      return json;
+    }
+    if (this.data instanceof FormData || this.data instanceof URLSearchParams) {
       return Object.fromEntries(this.data);
+    }
+    if (isPlainObject(this.data) || Array.isArray(this.data)) {
+      return this.data;
     }
     const text = await this.text();
     if (!text) {
@@ -140,11 +222,16 @@ export default class AnyData {
     return JSON.parse(text);
   }
   async text(): Promise<string> {
+    if (this.data instanceof Response) {
+      const string = await this.data.text();
+      this.data = string;
+      return string;
+    }
+    if (this.data === null) {
+      return '';
+    }
     if (this.data instanceof Blob) {
       return this.data.text();
-    }
-    if (this.data instanceof ReadableStream) {
-      // return getStreamAsString(this.data);
     }
     if (typeof this.data === 'string') {
       return this.data;
@@ -160,25 +247,13 @@ export default class AnyData {
       const tmp = new Response(this.data);
       return tmp.text();
     }
-  }
-  // async stream() {
-  //   if (this.data instanceof ReadableStream) {
-  //     return this.data;
-  //   }
-  //   if (this.data instanceof Buffer || isTypedArray(this.data)) {
-  //     // @ts-expect-error  TypeScript can't know that this.data is a Buffer or TypedArray
-  //     return getStream(this.data);
-  //   }
-  // }
-  async toResponse(init: ResponseInit): Promise<Response> {
-    if (this.data instanceof Response) {
-      return this.data;
+    if (this.data instanceof URLSearchParams) {
+      return this.data.toString();
     }
-    if (this.data instanceof Array || isPlainObject(this.data)) {
-      return new Response(JSON.stringify(this.data), init);
+    if (isPlainObject(this.data) || Array.isArray(this.data)) {
+      return JSON.stringify(this.data);
     }
-    // @ts-expect-error  TypeScript can't know that this.data is not a valid body
-    return new Response(this.data, init);
+    return String(this.data);
   }
 }
 

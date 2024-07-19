@@ -1,4 +1,3 @@
 Future features:
 
-- readableStream() method
-- Support number, boolean, Date
+- support readable streams?
