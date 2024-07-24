@@ -1,6 +1,6 @@
 {
   "name": "any-data",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert data of any type to text, json, formData, TypedArray, Blob, or ArrayBuffer",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -16,7 +16,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kensnyder/project.git"
+    "url": "git+https://github.com/kensnyder/any-data.git"
   },
   "keywords": [],
   "scripts": {
@@ -44,5 +44,10 @@
     "type-fest": "4.23.0",
     "typescript": "5.5.4",
     "vitest": "2.0.4"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md"
+  ]
 }
