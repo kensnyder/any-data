@@ -1,6 +1,6 @@
 {
   "name": "any-data",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Convert data of any type to text, json, formData, TypedArray, Blob, or ArrayBuffer",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,6 +13,11 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md"
+  ],
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -23,7 +28,7 @@
     "test": "vitest run",
     "test-watch": "vitest",
     "build": "npm run build:clean && npm run build:dts && npm run build:esm && npm run build:cjs",
-    "build:clean": "rimraf dist/ && mkdir dist && touch dist/.gitkeep",
+    "build:clean": "rimraf dist/ && mkdir dist",
     "build:dts": "yes | npx dts-bundle-generator -o dist/index.d.ts index.ts",
     "build:esm": "yes | npx esbuild index.ts --bundle --platform=node --format=esm --outfile=dist/index.mjs",
     "build:cjs": "yes | npx esbuild index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs",
@@ -44,10 +49,5 @@
     "type-fest": "4.23.0",
     "typescript": "5.5.4",
     "vitest": "2.0.4"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE.md"
-  ]
+  }
 }
