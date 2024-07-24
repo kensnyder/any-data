@@ -410,7 +410,7 @@ describe('Conversion', () => {
     it('to json', async () => {
       const data = new AnyData(new Date());
       const thrower = () => data.json();
-      await expect(thrower).rejects.toThrow(/not valid/i);
+      await expect(thrower).rejects.toThrow(/JSON/i);
     });
     it('to string', async () => {
       const now = new Date();
