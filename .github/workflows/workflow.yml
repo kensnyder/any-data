@@ -1,4 +1,4 @@
-name: ☂️ Build and Codecov️
+name: build
 on: [push]
 jobs:
   run:
