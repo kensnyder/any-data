@@ -16,7 +16,7 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src/**/*.ts"
+    "src/*.ts"
   ],
   "files": ["index.ts"]
 }

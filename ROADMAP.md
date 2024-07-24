@@ -1,3 +1,3 @@
 Future features:
 
-- support readable streams?
+- maybe support `ReadableStream` as input data type

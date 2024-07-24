@@ -16,6 +16,8 @@ export type SupportedData =
   | Array<any>
   | Response;
 
+export type DataCategory = 'bytes' | 'text' | 'unknown';
+
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
@@ -26,6 +28,55 @@ export default class AnyData {
   }
   set(data: SupportedData) {
     this.data = data;
+  }
+  isSupported(): boolean {
+    return (
+      this.data === null ||
+      this.data instanceof Blob ||
+      this.data instanceof ArrayBuffer ||
+      isTypedArray(this.data) ||
+      this.data instanceof DataView ||
+      this.data instanceof FormData ||
+      this.data instanceof URLSearchParams ||
+      typeof this.data === 'string' ||
+      isPlainObject(this.data) ||
+      Array.isArray(this.data)
+    );
+  }
+  getDataCategory(): DataCategory {
+    if (
+      this.data instanceof Blob ||
+      this.data instanceof ArrayBuffer ||
+      isTypedArray(this.data) ||
+      this.data instanceof DataView
+    ) {
+      return 'bytes';
+    }
+    if (
+      this.data === null ||
+      typeof this.data === 'string' ||
+      this.data instanceof FormData ||
+      this.data instanceof URLSearchParams ||
+      isPlainObject(this.data) ||
+      Array.isArray(this.data)
+    ) {
+      return 'text';
+    }
+    return 'unknown';
+  }
+  isEmpty(): boolean {
+    return (
+      this.data === null ||
+      this.data === '' ||
+      (isTypedArray(this.data) && this.data.length === 0) ||
+      (this.data instanceof ArrayBuffer && this.data.byteLength === 0) ||
+      (this.data instanceof DataView && this.data.byteLength === 0) ||
+      (this.data instanceof Blob && this.data.size === 0) ||
+      (this.data instanceof URLSearchParams && this.data.size === 0) ||
+      (this.data instanceof FormData &&
+        Array.from(this.data.keys()).length === 0)
+    );
+    // consider others non-empty, even [] and {}
   }
   async clone(): Promise<AnyData> {
     if (this.data instanceof Response) {

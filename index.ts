@@ -1,1 +1,5 @@
-export { default as AnyData } from './src/AnyData';
+export {
+  default as AnyData,
+  type SupportedData,
+  type DataCategory,
+} from './src/AnyData';

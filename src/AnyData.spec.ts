@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+// @ts-ignore
 import { AnyData } from '../index';
 
 const aString = 'Hello world';
@@ -26,14 +27,6 @@ const anArrayBlob = new Blob([anArrayString]);
 const anArrayArrayBuffer = await anArrayBlob.arrayBuffer();
 const anArrayUint8Array = new Uint8Array(anArrayArrayBuffer);
 
-describe('Constructor', () => {
-  it('should update data after set', async () => {
-    const data = new AnyData(anObject);
-    expect(data.data).toEqual(anObject);
-    data.set(aString);
-    expect(data.data).toBe(aString);
-  });
-});
 describe('Conversion', () => {
   describe('string', () => {
     it('to Blob', async () => {
@@ -515,5 +508,78 @@ describe('Cloning', () => {
     const original = new AnyData(now);
     const clone = await original.clone();
     expect(clone.data).not.toBe(now);
+  });
+});
+describe('Utility methods', () => {
+  it('should update data after set', async () => {
+    const data = new AnyData(anObject);
+    expect(data.data).toEqual(anObject);
+    data.set(aString);
+    expect(data.data).toBe(aString);
+  });
+  it('should know if data type is supported', async () => {
+    expect(new AnyData(null).isSupported()).toBe(true);
+    expect(new AnyData(new Blob()).isSupported()).toBe(true);
+    expect(new AnyData(new ArrayBuffer(0)).isSupported()).toBe(true);
+    expect(new AnyData(new Uint8Array()).isSupported()).toBe(true);
+    expect(new AnyData(new DataView(new ArrayBuffer(0))).isSupported()).toBe(
+      true
+    );
+    expect(new AnyData(new FormData()).isSupported()).toBe(true);
+    expect(new AnyData(new URLSearchParams()).isSupported()).toBe(true);
+    expect(new AnyData('foobar').isSupported()).toBe(true);
+    expect(new AnyData({ javascript: 'rocks' }).isSupported()).toBe(true);
+    expect(new AnyData([{ a: 1 }]).isSupported()).toBe(true);
+    expect(new AnyData(new Date()).isSupported()).toBe(false);
+    expect(new AnyData(1).isSupported()).toBe(false);
+    expect(new AnyData(false).isSupported()).toBe(false);
+    expect(new AnyData(1n).isSupported()).toBe(false);
+    expect(new AnyData(undefined).isSupported()).toBe(false);
+    expect(new AnyData(new WeakMap()).isSupported()).toBe(false);
+    expect(new AnyData(new WeakSet()).isSupported()).toBe(false);
+  });
+  it('should know the data category', async () => {
+    expect(new AnyData(new Blob()).getDataCategory()).toBe('bytes');
+    expect(new AnyData(new ArrayBuffer(0)).getDataCategory()).toBe('bytes');
+    expect(new AnyData(new Uint8Array()).getDataCategory()).toBe('bytes');
+    expect(
+      new AnyData(new DataView(new ArrayBuffer(0))).getDataCategory()
+    ).toBe('bytes');
+    expect(new AnyData(new FormData()).getDataCategory()).toBe('text');
+    expect(new AnyData(new URLSearchParams()).getDataCategory()).toBe('text');
+    expect(new AnyData(null).getDataCategory()).toBe('text');
+    expect(new AnyData('').getDataCategory()).toBe('text');
+    expect(new AnyData({}).getDataCategory()).toBe('text');
+    expect(new AnyData([]).getDataCategory()).toBe('text');
+    expect(new AnyData(new Response()).getDataCategory()).toBe('unknown');
+    expect(new AnyData(new Date()).getDataCategory()).toBe('unknown');
+    expect(new AnyData(true).getDataCategory()).toBe('unknown');
+  });
+  it('should identify empty objects', async () => {
+    expect(new AnyData(null).isEmpty()).toBe(true);
+    expect(new AnyData(new Blob()).isEmpty()).toBe(true);
+    expect(new AnyData(new ArrayBuffer(0)).isEmpty()).toBe(true);
+    expect(new AnyData(new Uint8Array()).isEmpty()).toBe(true);
+    expect(new AnyData(new DataView(new ArrayBuffer(0))).isEmpty()).toBe(true);
+    expect(new AnyData(new FormData()).isEmpty()).toBe(true);
+    expect(new AnyData(new URLSearchParams()).isEmpty()).toBe(true);
+    expect(new AnyData('').isEmpty()).toBe(true);
+    expect(new AnyData({}).isEmpty()).toBe(false);
+    expect(new AnyData([]).isEmpty()).toBe(false);
+    // unknown
+    expect(new AnyData(new Response()).isEmpty()).toBe(false);
+    expect(new AnyData(new Date()).isEmpty()).toBe(false);
+    expect(new AnyData(true).isEmpty()).toBe(false);
+  });
+  it('should identify non-empty objects', async () => {
+    expect(new AnyData(aBlob).isEmpty()).toBe(false);
+    expect(new AnyData(anArrayBuffer).isEmpty()).toBe(false);
+    expect(new AnyData(aUint8Array).isEmpty()).toBe(false);
+    expect(new AnyData(aDataView).isEmpty()).toBe(false);
+    expect(new AnyData(aFormData).isEmpty()).toBe(false);
+    expect(new AnyData(aUrlSearchParams).isEmpty()).toBe(false);
+    expect(new AnyData(aString).isEmpty()).toBe(false);
+    expect(new AnyData(anObject).isEmpty()).toBe(false);
+    expect(new AnyData(anArray).isEmpty()).toBe(false);
   });
 });
