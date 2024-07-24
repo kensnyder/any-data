@@ -1,7 +1,7 @@
 # any-data
 
 [![NPM Link](https://img.shields.io/npm/v/any-data?v=1.0.0)](https://npmjs.com/package/any-data)
-[![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)](https://github.com/kensnyder/any-data/actions/new)
+[![Build Status](https://github.com/github/docs/actions/workflows/workflow.yml/badge.svg)](https://github.com/kensnyder/any-data/actions)
 [![Code Coverage](https://codecov.io/gh/kensnyder/any-data/branch/main/graph/badge.svg?v=1.0.0)](https://codecov.io/gh/kensnyder/any-data)
 [![Gzipped Size](https://badgen.net/bundlephobia/minzip/any-data/?label=minzipped+size&v=1.0.0)](https://bundlephobia.com/package/any-data@1.0.0)
 [![Dependency details](https://badgen.net/bundlephobia/dependency-count/any-data?v=1.0.0)](https://www.npmjs.com/package/any-data?activeTab=dependencies)
