@@ -1,6 +1,6 @@
 {
   "name": "any-data",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Convert data of any type to text, json, formData, TypedArray, Blob, or ArrayBuffer",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -30,8 +30,8 @@
     "build": "npm run build:clean && npm run build:dts && npm run build:esm && npm run build:cjs",
     "build:clean": "rimraf dist/ && mkdir dist",
     "build:dts": "yes | npx dts-bundle-generator -o dist/index.d.ts index.ts",
-    "build:esm": "yes | npx esbuild index.ts --bundle --platform=node --format=esm --outfile=dist/index.mjs",
-    "build:cjs": "yes | npx esbuild index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs",
+    "build:esm": "yes | npx esbuild index.ts --minify --bundle --platform=node --format=esm --outfile=dist/index.mjs",
+    "build:cjs": "yes | npx esbuild index.ts --minify --bundle --platform=node --format=cjs --outfile=dist/index.cjs",
     "coverage": "vitest run --coverage",
     "view-coverage": "open ./coverage/lcov-report/index.html"
   },
@@ -41,13 +41,13 @@
     "is-plain-object": "5.0.0"
   },
   "devDependencies": {
-    "@types/node": "20.14.12",
-    "@vitest/coverage-v8": "2.0.4",
+    "@types/node": "22.7.3",
+    "@vitest/coverage-v8": "2.1.1",
     "prettier": "3.3.3",
-    "prettier-plugin-organize-imports": "4.0.0",
+    "prettier-plugin-organize-imports": "4.1.0",
     "rimraf": "6.0.1",
-    "type-fest": "4.23.0",
-    "typescript": "5.5.4",
-    "vitest": "2.0.4"
+    "type-fest": "4.26.1",
+    "typescript": "5.6.2",
+    "vitest": "2.1.1"
   }
 }

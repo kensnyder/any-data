@@ -1,13 +1,13 @@
 # any-data
 
-[![NPM Link](https://badgen.net/npm/v/any-data?v=1.0.2)](https://npmjs.com/package/any-data)
-[![Language](https://badgen.net/static/language/TS?v=1.0.2)](https://github.com/search?q=repo:kensnyder/any-data++language:TypeScript&type=code)
-[![Build Status](https://github.com/kensnyder/any-data/actions/workflows/workflow.yml/badge.svg?v=1.0.2)](https://github.com/kensnyder/any-data/actions)
-[![Code Coverage](https://codecov.io/gh/kensnyder/any-data/branch/main/graph/badge.svg?v=1.0.2)](https://codecov.io/gh/kensnyder/any-data)
-[![Gzipped Size](https://badgen.net/bundlephobia/minzip/any-data?label=minzipped&v=1.0.2)](https://bundlephobia.com/package/any-data@1.0.2)
-[![Dependency details](https://badgen.net/bundlephobia/dependency-count/any-data?v=1.0.2)](https://www.npmjs.com/package/any-data?activeTab=dependencies)
-[![Tree shakeable](https://badgen.net/bundlephobia/tree-shaking/any-data?v=1.0.2)](https://www.npmjs.com/package/any-data)
-[![ISC License](https://badgen.net/github/license/kensnyder/any-data?v=1.0.2)](https://opensource.org/licenses/ISC)
+[![NPM Link](https://badgen.net/npm/v/any-data?v=1.0.3)](https://npmjs.com/package/any-data)
+[![Language](https://badgen.net/static/language/TS?v=1.0.3)](https://github.com/search?q=repo:kensnyder/any-data++language:TypeScript&type=code)
+[![Build Status](https://github.com/kensnyder/any-data/actions/workflows/workflow.yml/badge.svg?v=1.0.3)](https://github.com/kensnyder/any-data/actions)
+[![Code Coverage](https://codecov.io/gh/kensnyder/any-data/branch/main/graph/badge.svg?v=1.0.3)](https://codecov.io/gh/kensnyder/any-data)
+[![Gzipped Size](https://badgen.net/bundlephobia/minzip/any-data?label=minzipped&v=1.0.3)](https://bundlephobia.com/package/any-data@1.0.3)
+[![Dependency details](https://badgen.net/bundlephobia/dependency-count/any-data?v=1.0.3)](https://www.npmjs.com/package/any-data?activeTab=dependencies)
+[![Tree shakeable](https://badgen.net/bundlephobia/tree-shaking/any-data?v=1.0.3)](https://www.npmjs.com/package/any-data)
+[![ISC License](https://badgen.net/github/license/kensnyder/any-data?v=1.0.3)](https://opensource.org/licenses/ISC)
 
 Convert data of any type to text, json, formData, TypedArray, Blob, or
 ArrayBuffer
@@ -20,8 +20,8 @@ npm install any-data
 
 I needed a tool for dealing with the wide variety of data types that can be
 passed to `new Response()`. So `AnyData` allows lazy data conversion for response
-bodies to simplify http server middleware such as calculating etags and Brotli
-compression.
+bodies to simplify http server middleware such as calculating etags and
+compression with Brotli.
 
 Note that `AnyData` does not support `ReadableStream` even though `Response`
 does.
@@ -41,14 +41,18 @@ does.
 ## Example usage
 
 ```ts
-new AnyData('hello world').bytes(); // UTF-8 encoded in Uint8Array
-new AnyData(myArrayBuffer).bytes(); // Array buffer as Uint8Array
-new AnyData(myBlob).arrayBuffer(); // Blob as ArrayBuffer
+import { AnyData } from 'any-data';
+
+await new AnyData('hello world').bytes(); // UTF-8 encoded in Uint8Array
+await new AnyData(myArrayBuffer).bytes(); // Array buffer as Uint8Array
+await new AnyData(myBlob).arrayBuffer(); // Blob as ArrayBuffer
 ```
 
 ## API
 
 ```ts
+import { AnyData } from 'any-data';
+
 const hello = new AnyData('hello world');
 
 // getting data
